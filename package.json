@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "dotenv": "^8.2.0",
+    "download": "^8.0.0",
+    "fluent-ffmpeg": "^2.1.2",
     "twitter": "^1.7.1"
   }
 }
