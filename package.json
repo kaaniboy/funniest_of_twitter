@@ -9,6 +9,7 @@
   "author": "Kaan Aksoy",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "twitter": "^1.7.1"
   }
 }
