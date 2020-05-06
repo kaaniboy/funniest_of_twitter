@@ -12,13 +12,20 @@ const TWITTER_NAMES = [
 ];
 
 async function run() {
-    // const tweets = await curateTweets(TWITTER_NAMES);
-    /*
-    tweets.forEach(t => downloadVideo(t.video_url, `${t.id}.mp4`, TEMP_DIR));
+    // Retrieve tweets
+    const tweets = await curateTweets(TWITTER_NAMES);
+
+    // Download videos in tweets
+    await Promise.all(tweets.map(async tweet => {
+        await downloadVideo(tweet.video_url, `${tweet.id}.mp4`, TEMP_DIR);
+    }));
+    
+    // Concat videos into a final video
     const filenames = tweets.map(t => `${t.id}.mp4`);
     createFinalVideo(filenames, TEMP_DIR);
-    */
-   fsExtra.emptyDirSync(TEMP_DIR)
+    
+    // Clean temporary files
+    // fsExtra.emptyDirSync(TEMP_DIR);
 }
 
 (async () => {

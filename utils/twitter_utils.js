@@ -3,7 +3,9 @@ const Twitter = require('twitter');
 const TWEETS_PER_ACCOUNT = 100;
 const MILLIS_IN_SEC = 1000;
 const SEC_IN_MIN = 60;
-const MINIMUM_DURATION_SEC = 600;
+
+const MINIMUM_TOTAL_DURATION_SEC = 180;
+const MAX_TWEET_DURATION_SEC = 30;
 
 const client = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -11,12 +13,11 @@ const client = new Twitter({
     bearer_token: process.env.TWITTER_BEARER_TOKEN
 });
 
-module.exports.curateTweets = async function(
-    screen_names,
-    min_duration = MINIMUM_DURATION_SEC,
-    count = TWEETS_PER_ACCOUNT
-) {
-    const videoTweets = await retrieveVideoTweets(screen_names, min_duration, count);
+module.exports.curateTweets = async function(screen_names, count = TWEETS_PER_ACCOUNT) {
+    console.log(`Retrieving ${MINIMUM_TOTAL_DURATION_SEC / SEC_IN_MIN} minutes of video tweets`);
+
+    let videoTweets = await retrieveVideoTweets(screen_names, min_duration, count);
+    videoTweets = videoTweets.filter(tweet => tweet.duration_sec < MAX_TWEET_DURATION_SEC);
     
     let curatedTweets = [];
     let total_duration_sec = 0;
@@ -26,13 +27,10 @@ module.exports.curateTweets = async function(
         curatedTweets.push(tweet);
         total_duration_sec += tweet.duration_sec;
     }
-    console.log(total_duration_sec);
     return curatedTweets;
 }
 
-async function retrieveVideoTweets(screen_names, min_duration, count) {
-    console.log(`Retrieving ${min_duration / SEC_IN_MIN} minutes of video tweets`);
-
+async function retrieveVideoTweets(screen_names, count) {
     try {
         let tweets = [];
         await Promise.all(screen_names.map(async (screen_name) => {
@@ -45,7 +43,10 @@ async function retrieveVideoTweets(screen_names, min_duration, count) {
             tweets = tweets.concat(newTweets);
         }));
         
-        const videoTweets = tweets.filter(hasVideo).map(extractTweetInfo);
+        const videoTweets = tweets
+            .filter(hasVideo)
+            .map(extractTweetInfo);
+        
         videoTweets.sort((a, b) => b.favorite_count - a.favorite_count);
         return videoTweets;
     } catch (error) {

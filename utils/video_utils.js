@@ -1,44 +1,33 @@
-const ffmpeg = require('fluent-ffmpeg');
-const { exec } = require('child_process');
+const { execSync } = require('child_process');
 
 const OUTPUT_DIR = 'output';
-const VIDEO_CODEC = 'libx264';
-const RESOLUTION = '1280x720';
+
+const RES_WIDTH = 1280;
+const RES_HEIGHT = 720;
 
 module.exports.createFinalVideo = function(filenames, temp_dir) {
     if (!filenames || filenames.length === 0) return;
-    filenames = filenames.map(f => `${temp_dir}/${f}`);
+
+    filenames = filenames
+        .map(f => `${temp_dir}/${f}`)
+        .filter(hasAudio);
+    const resized_filenames = filenames.map(f => `${f.split('.')[0]}-resized.mp4`);
 
     output_filename = new Date().toISOString().split('T')[0] + '.mp4';
     
     try {
-        resizeVideos(filenames, resized_filenames => {
-            concatVideos(resized_filenames, `${OUTPUT_DIR}/${output_filename}`);
-        });
+        resizeVideos(filenames, resized_filenames);
+        concatVideos(resized_filenames, `${OUTPUT_DIR}/${output_filename}`);
     } catch (e) {
         console.log(e);
     }
 }
 
-function resizeVideos(filenames, callback) {
+function resizeVideos(filenames, resized_filenames) {
     console.log(`Resizing ${filenames.length} videos...`);
-    let finished = new Array(filenames.length).fill(false);
 
-    const resized_filenames = filenames.map(f => `${f.split('.')[0]}-resized.mp4`);
-
-    filenames.forEach((f, i) => {
-        ffmpeg(f)
-            .withVideoCodec(VIDEO_CODEC)
-            .withSize(RESOLUTION)
-            .autoPad()
-            .saveToFile(resized_filenames[i])
-            .on('end', () => {
-                finished[i] = true;
-                if (finished.every(f => f)) {
-                    callback(resized_filenames);
-                    return;
-                }
-            });
+    filenames.forEach((filename, i) => {
+        execSync(createResizeCommand(filename, resized_filenames[i]));
     });
 }
 
@@ -46,16 +35,7 @@ function concatVideos(filenames, output_filename) {
     console.log(`Concatenating ${filenames.length} videos...`);
 
     const concatCommand = createConcatCommand(filenames, output_filename);
-    console.log(concatCommand);
-
-    exec(concatCommand, (error, _, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-        }
-    });
+    execSync(concatCommand);
 }
 
 function createConcatCommand(filenames, output_filename) {
@@ -66,4 +46,14 @@ function createConcatCommand(filenames, output_filename) {
     command += ` concat=n=${filenames.length}:v=1:a=1 [v] [a]"`;
     command += ` -map "[v]" -map "[a]" ${output_filename}`
     return command;
+}
+
+function createResizeCommand(filename, resized_filename) {
+    return `ffmpeg -i ${filename} -vf "scale=w=${RES_WIDTH}:h=${RES_HEIGHT}:force_original_aspect_ratio=1`
+        + `,pad=${RES_WIDTH}:${RES_HEIGHT}:(ow-iw)/2:(oh-ih)/2" ${resized_filename}`;
+}
+
+function hasAudio(filename) {
+    const info = execSync(`ffprobe -i ${filename} -show_streams -select_streams a -loglevel error`);
+    return info.length !== 0;
 }
