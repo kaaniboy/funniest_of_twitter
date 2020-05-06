@@ -4,8 +4,10 @@ const TWEETS_PER_ACCOUNT = 100;
 const MILLIS_IN_SEC = 1000;
 const SEC_IN_MIN = 60;
 
-const MINIMUM_TOTAL_DURATION_SEC = 180;
+const MINIMUM_TOTAL_DURATION_SEC = 300;
 const MAX_TWEET_DURATION_SEC = 30;
+
+const TWEET_TEXT_SPLIT = 'https://t.co/';
 
 const client = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -16,14 +18,14 @@ const client = new Twitter({
 module.exports.curateTweets = async function(screen_names, count = TWEETS_PER_ACCOUNT) {
     console.log(`Retrieving ${MINIMUM_TOTAL_DURATION_SEC / SEC_IN_MIN} minutes of video tweets`);
 
-    let videoTweets = await retrieveVideoTweets(screen_names, min_duration, count);
+    let videoTweets = await retrieveVideoTweets(screen_names, count);
     videoTweets = videoTweets.filter(tweet => tweet.duration_sec < MAX_TWEET_DURATION_SEC);
     
     let curatedTweets = [];
     let total_duration_sec = 0;
     
     for (let tweet of videoTweets) {
-        if (total_duration_sec > min_duration) break;
+        if (total_duration_sec > MINIMUM_TOTAL_DURATION_SEC) break;
         curatedTweets.push(tweet);
         total_duration_sec += tweet.duration_sec;
     }
@@ -66,20 +68,25 @@ function extractTweetInfo(tweet) {
     const video_info = tweet.extended_entities.media[0].video_info;
     const video_bitrates = video_info.variants.map(v => v.bitrate || 0);
     const video_size = tweet.extended_entities.media[0].sizes.large;
+    const text = tweet.text.split(TWEET_TEXT_SPLIT)[0].trim();
 
     const video_url = video_info.variants[
         video_bitrates.indexOf(Math.max(...video_bitrates))
     ].url;
-
+    
     return {
         id: tweet.id_str,
         bitrate: Math.max(...video_bitrates),
         name: tweet.user.name,
-        text: tweet.text,
+        text: removeEmojis(text),
         favorite_count: tweet.favorite_count,
         aspect_ratio: video_info.aspect_ratio,
         video_size,
         video_url,
         duration_sec: video_info.duration_millis / MILLIS_IN_SEC
     };
+}
+
+function removeEmojis(text) {
+    return text.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
 }
