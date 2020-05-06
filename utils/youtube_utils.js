@@ -12,8 +12,9 @@ const PORT = 8000;
 const YOUTUBE_REDIRECT_ENDPOINT = '/youtube_redirect';
 const UPDATE_INTERVAL_MS = 1000;
 
-const VIDEO_TITLE_PREFIX = 'Funniest Memes and Tik-Toks ';
-const VIDEO_DESCRIPTION = 'Funniest Tik';
+const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks ';
+const VIDEO_DESCRIPTION = 
+    'Watch the day\'s funniest memes, Vines, and Tik-Toks! Disclaimer: Funniest Daily Videos does not own any of these videos.';
 
 const server = express();
 
