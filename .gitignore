@@ -4,3 +4,4 @@ node_modules
 temp
 output
 static
+youtube_credentials.json

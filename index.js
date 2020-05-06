@@ -3,7 +3,7 @@ const fsExtra = require('fs-extra');
 
 const { curateTweets } = require('./utils/twitter_utils');
 const { downloadVideo } = require('./utils/download_utils');
-const { createFinalVideoFromTweets, createThumbnailCommand } = require('./utils/video_utils');
+const { createFinalVideoFromTweets } = require('./utils/video_utils');
 
 const TEMP_DIR = 'temp';
 const TWITTER_NAMES = [
