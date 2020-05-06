@@ -1,17 +1,19 @@
 const ffmpeg = require('fluent-ffmpeg');
 const { exec } = require('child_process');
 
-const OUTPUT_FILENAME = 'final.mp4';
+const OUTPUT_DIR = 'output';
 const VIDEO_CODEC = 'libx264';
 const RESOLUTION = '1280x720';
 
-module.exports.createFinalVideo = function(filenames, dir, output_filename = OUTPUT_FILENAME) {
+module.exports.createFinalVideo = function(filenames, temp_dir, output_dir = OUTPUT_DIR) {
     if (!filenames || filenames.length === 0) return;
-    filenames = filenames.map(f => `${dir}/${f}`);
+    filenames = filenames.map(f => `${temp_dir}/${f}`);
+
+    output_filename = new Date().toISOString().split('T')[0] + '.mp4';
     
     try {
         resizeVideos(filenames, resized_filenames => {
-            concatVideos(resized_filenames, `${dir}/${output_filename}`);
+            concatVideos(resized_filenames, `${output_dir}/${output_filename}`);
         });
     } catch (e) {
         console.log(e);
