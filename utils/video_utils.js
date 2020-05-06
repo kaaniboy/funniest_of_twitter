@@ -5,7 +5,7 @@ const OUTPUT_DIR = 'output';
 const VIDEO_CODEC = 'libx264';
 const RESOLUTION = '1280x720';
 
-module.exports.createFinalVideo = function(filenames, temp_dir, output_dir = OUTPUT_DIR) {
+module.exports.createFinalVideo = function(filenames, temp_dir) {
     if (!filenames || filenames.length === 0) return;
     filenames = filenames.map(f => `${temp_dir}/${f}`);
 
@@ -13,7 +13,7 @@ module.exports.createFinalVideo = function(filenames, temp_dir, output_dir = OUT
     
     try {
         resizeVideos(filenames, resized_filenames => {
-            concatVideos(resized_filenames, `${output_dir}/${output_filename}`);
+            concatVideos(resized_filenames, `${OUTPUT_DIR}/${output_filename}`);
         });
     } catch (e) {
         console.log(e);
@@ -43,7 +43,7 @@ function resizeVideos(filenames, callback) {
 }
 
 function concatVideos(filenames, output_filename) {
-    console.log(`Resizing ${filenames.length} videos...`);
+    console.log(`Concatenating ${filenames.length} videos...`);
 
     const concatCommand = createConcatCommand(filenames, output_filename);
     console.log(concatCommand);
