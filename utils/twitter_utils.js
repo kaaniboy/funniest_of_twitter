@@ -40,6 +40,7 @@ function extractTweetInfo(tweet) {
 
     return {
         id: tweet.id_str,
+        bitrate: Math.max(...video_bitrates),
         name: tweet.user.name,
         text: tweet.text,
         aspect_ratio: video_details.aspect_ratio,
