@@ -3,6 +3,10 @@ const { execSync } = require('child_process');
 const OUTPUT_DIR = 'output';
 const FONT_PATH = 'static/AvenirNext-Bold.ttf';
 
+TITLE_TOP = 'FUNNIEST VIDEOS';
+TITLE_FONT_SIZE = 130;
+SUBTITLE_FONT_SIZE = 24;
+
 const RES_WIDTH = 1280;
 const RES_HEIGHT = 720;
 
@@ -17,21 +21,22 @@ module.exports.createFinalVideoFromTweets = function(tweets, temp_dir) {
     const subtitles = tweets.map(t => t.text);
 
     const output_filename = new Date().toISOString().split('T')[0] + '.mp4';
+    const output_path = `${OUTPUT_DIR}/${output_filename}`;
     
     try {
-        resizeVideos(subtitles, filenames, resized_filenames);
-        concatVideos(resized_filenames, `${OUTPUT_DIR}/${output_filename}`);
-        createThumbnail(`${OUTPUT_DIR}/${output_filename}`);
+        transformVideos(subtitles, filenames, resized_filenames);
+        concatVideos(resized_filenames, output_path);
+        createThumbnail(output_path, TITLE_TOP, createDateText(new Date()));
     } catch (e) {
         console.log(e);
     }
 }
 
-function resizeVideos(subtitles, filenames, resized_filenames) {
-    console.log(`Resizing ${filenames.length} videos...`);
+function transformVideos(subtitles, filenames, resized_filenames) {
+    console.log(`Transforming ${filenames.length} videos...`);
 
     filenames.forEach((filename, i) => {
-        execSync(createResizeCommand(subtitles[i], filename, resized_filenames[i]));
+        execSync(createTransformCommand(subtitles[i], filename, resized_filenames[i]));
     });
 }
 
@@ -42,9 +47,9 @@ function concatVideos(filenames, output_filename) {
     execSync(concatCommand);
 }
 
-function createThumbnail(filename) {
+function createThumbnail(filename, title_top, title_bottom) {
     console.log('Generating thumbnail...');
-    execSync(createThumbnailCommand(filename));
+    execSync(createThumbnailCommand(filename, title_top, title_bottom));
 }
 
 function createConcatCommand(filenames, output_filename) {
@@ -58,21 +63,33 @@ function createConcatCommand(filenames, output_filename) {
     return command;
 }
 
-function createResizeCommand(subtitle, filename, resized_filename) {
+function createTransformCommand(subtitle, filename, resized_filename) {
     let command = `ffmpeg -i ${filename} -vf "scale=w=${RES_WIDTH}:h=${RES_HEIGHT}:force_original_aspect_ratio=1,pad=${RES_WIDTH}:${RES_HEIGHT}:(ow-iw)/2:(oh-ih)/2,`;
-    command += `drawtext=fontfile=${FONT_PATH}: text=\'${subtitle}\':fontcolor=white: fontsize=24: box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y= h-text_h-30"`;
+    command += `drawtext=fontfile=${FONT_PATH}: text=\'${subtitle}\':fontcolor=white: fontsize=${SUBTITLE_FONT_SIZE}: box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y= h-text_h-30"`;
     
     command += ` ${resized_filename}`;
     command += ' -loglevel error -hide_banner';
     return command;
 }
 
-function createThumbnailCommand(filename) {
+function createThumbnailCommand(filename, title_top, title_bottom) {
     thumbnail_filename = `${filename.split('.')[0]}-thumbnail.png`;
-    return `ffmpeg -i ${filename} -ss 00:00:01.000 -vframes 1 ${thumbnail_filename}`;
+
+    let command = `ffmpeg -i ${filename} -ss 00:00:01.000 -vframes 1 `
+    command += ` -vf "drawtext=fontfile=${FONT_PATH}: text=\'${title_top}\':fontcolor=white: fontsize=${TITLE_FONT_SIZE}: x=(w-text_w)/2: y=(h-2*text_h)/2`;
+    command += `,drawtext=fontfile=${FONT_PATH}: text=\'${title_bottom}\':fontcolor=white: fontsize=${TITLE_FONT_SIZE}: x=(w-text_w)/2: y=40+text_h+(h-2*text_h)/2"`;
+    command += ` ${thumbnail_filename}`;
+    command += ' -loglevel error -hide_banner';
+    return command;
 }
 
 function hasAudio(filename) {
     const info = execSync(`ffprobe -i ${filename} -show_streams -select_streams a -loglevel error`);
     return info.length !== 0;
+}
+
+function createDateText(date) {
+    let title_bottom = date.toDateString();
+    title_bottom = title_bottom.substring(title_bottom.indexOf(' ') + 1);
+    return title_bottom.toUpperCase();
 }
