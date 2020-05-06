@@ -1,10 +1,11 @@
 const Twitter = require('twitter');
+const emojiStrip = require('emoji-strip');
 
 const TWEETS_PER_ACCOUNT = 100;
 const MILLIS_IN_SEC = 1000;
 const SEC_IN_MIN = 60;
 
-const MINIMUM_TOTAL_DURATION_SEC = 300;
+const MINIMUM_TOTAL_DURATION_SEC = 900;
 const MAX_TWEET_DURATION_SEC = 30;
 
 const TWEET_TEXT_SPLIT = 'https://t.co/';
@@ -78,7 +79,7 @@ function extractTweetInfo(tweet) {
         id: tweet.id_str,
         bitrate: Math.max(...video_bitrates),
         name: tweet.user.name,
-        text: removeEmojis(text),
+        text: cleanText(text),
         favorite_count: tweet.favorite_count,
         aspect_ratio: video_info.aspect_ratio,
         video_size,
@@ -87,6 +88,9 @@ function extractTweetInfo(tweet) {
     };
 }
 
-function removeEmojis(text) {
-    return text.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+function cleanText(text) {
+    // Replace & with 'and'
+    text = text.replace(/&/g, 'and');
+    // Remove emojis
+    return emojiStrip(text).trim();
 }

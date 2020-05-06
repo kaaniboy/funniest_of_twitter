@@ -4,11 +4,15 @@ const fsExtra = require('fs-extra');
 const { curateTweets } = require('./utils/twitter_utils');
 const { downloadVideo } = require('./utils/download_utils');
 const { createFinalVideoFromTweets } = require('./utils/video_utils');
+const { beginYouTubeUpload } = require('./utils/youtube_utils');
 
 const TEMP_DIR = 'temp';
 const TWITTER_NAMES = [
     'tiktok_us',
     'ffs_omg',
+    'TrendingTiktoks',
+    'supplierofmemes',
+    'HoodMemesDaily'
 ];
 
 async function run() {
@@ -25,6 +29,9 @@ async function run() {
 
     // Concat videos into a final video
     createFinalVideoFromTweets(tweets, TEMP_DIR);
+
+    // Upload to YouTube
+    beginYouTubeUpload();
     
     // Clean temporary files
     fsExtra.emptyDirSync(TEMP_DIR);

@@ -12,7 +12,7 @@ const PORT = 8000;
 const YOUTUBE_REDIRECT_ENDPOINT = '/youtube_redirect';
 const UPDATE_INTERVAL_MS = 1000;
 
-const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks ';
+const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks';
 const VIDEO_DESCRIPTION = 
     'Watch the day\'s funniest memes, Vines, and Tik-Toks! Disclaimer: Funniest Daily Videos does not own any of these videos.';
 
@@ -30,8 +30,8 @@ module.exports.beginYouTubeUpload = function() {
     server.get(YOUTUBE_REDIRECT_ENDPOINT, upload);
 
     open(oauth.generateAuthUrl({
-        access_type: "offline"
-      , scope: ["https://www.googleapis.com/auth/youtube.upload"]
+        access_type: "offline",
+        scope: ["https://www.googleapis.com/auth/youtube.upload"]
     }));
 }
 
@@ -52,7 +52,7 @@ function upload(req, res) {
             resource: {
                 snippet: getVideoSnippet(today),
                 status: {
-                    privacyStatus: 'private'
+                    privacyStatus: 'public'
                 }
             },
             media: getVideoMedia(today),
@@ -63,6 +63,7 @@ function upload(req, res) {
                 console.log(error);
             }
             console.log(data);
+            process.exit();
         });
     
         setInterval(function () {
@@ -76,7 +77,7 @@ function getVideoSnippet(date) {
     date_text = date_text.substring(date_text.indexOf(' ') + 1);
 
     return {
-        title: `${VIDEO_TITLE_PREFIX} ${date_text}`,
+        title: `${VIDEO_TITLE_PREFIX} (${date_text})`,
         description: VIDEO_DESCRIPTION
     };
 }
@@ -87,5 +88,3 @@ function getVideoMedia(date) {
         body: fs.createReadStream(`${OUTPUT_DIR}/${video_filename}`)
     };
 }
-
-module.exports.beginYouTubeUpload();
