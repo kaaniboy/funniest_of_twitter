@@ -16,11 +16,12 @@ module.exports.createFinalVideoFromTweets = function(tweets, temp_dir) {
     const resized_filenames = filenames.map(f => `${f.split('.')[0]}-resized.mp4`);
     const subtitles = tweets.map(t => t.text);
 
-    output_filename = new Date().toISOString().split('T')[0] + '.mp4';
+    const output_filename = new Date().toISOString().split('T')[0] + '.mp4';
     
     try {
         resizeVideos(subtitles, filenames, resized_filenames);
         concatVideos(resized_filenames, `${OUTPUT_DIR}/${output_filename}`);
+        createThumbnail(`${OUTPUT_DIR}/${output_filename}`);
     } catch (e) {
         console.log(e);
     }
@@ -41,6 +42,11 @@ function concatVideos(filenames, output_filename) {
     execSync(concatCommand);
 }
 
+function createThumbnail(filename) {
+    console.log('Generating thumbnail...');
+    execSync(createThumbnailCommand(filename));
+}
+
 function createConcatCommand(filenames, output_filename) {
     let command = 'ffmpeg ';
     command += filenames.map(f => `-i ${f}`).join(' ');
@@ -59,6 +65,11 @@ function createResizeCommand(subtitle, filename, resized_filename) {
     command += ` ${resized_filename}`;
     command += ' -loglevel error -hide_banner';
     return command;
+}
+
+function createThumbnailCommand(filename) {
+    thumbnail_filename = `${filename.split('.')[0]}-thumbnail.png`;
+    return `ffmpeg -i ${filename} -ss 00:00:01.000 -vframes 1 ${thumbnail_filename}`;
 }
 
 function hasAudio(filename) {
