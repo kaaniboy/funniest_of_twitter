@@ -1,0 +1,19 @@
+$player-width: 640px;
+
+* {
+    font-family: 'Roboto';
+    text-align: center;
+}
+
+.container {
+    margin: 0 auto;
+    width: $player-width;
+}
+
+.actions {
+    button {
+        margin: 0 10px;
+    }
+    margin-top: 15px;
+    text-align: center;
+}

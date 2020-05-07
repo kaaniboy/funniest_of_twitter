@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "connect": "^3.7.0",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "download": "^8.0.0",
     "emoji-strip": "^1.0.1",

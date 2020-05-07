@@ -1,7 +1,7 @@
 .DS_Store
 .env
 node_modules
-temp
+clips
 output
 static
 youtube_credentials.json
