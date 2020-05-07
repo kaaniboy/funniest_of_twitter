@@ -1,4 +1,6 @@
 const express = require('express');
+const gatsbyExpress = require('gatsby-plugin-express');
+const path = require('path');
 const cors = require('cors');
 const fs = require('fs');
 
@@ -6,11 +8,16 @@ const CLIPS_DIR = 'clips';
 const PORT = 9000;
 
 const server = express();
+
+const WEB_PUBLIC_DIR = path.join(__dirname, '../web/public');
+
+server.use(express.static(WEB_PUBLIC_DIR));
 server.use('/static', express.static(__dirname + '/clips'));
+
 server.use(cors());
 
 server.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.sendFile('index.html');
 });
 
 server.get('/clips', (req, res) => {
@@ -29,4 +36,4 @@ server.delete('/clips/:file_name', (req, res) => {
     }
 });
 
-server.listen(PORT, () => console.log(`Listening for YouTube redirect at http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`Listening at http://localhost:${PORT}`));

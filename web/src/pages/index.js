@@ -21,7 +21,6 @@ export default class Index extends Component {
   }
 
   async componentDidMount() {
-    deleteClip('a.mp4');
     const clips = await getClips();
     this.setState({ clips });
   }
@@ -42,7 +41,7 @@ export default class Index extends Component {
 
   render () {
     const { clips, currentClip } = this.state;
-    if (clips.length === 0) return <div></div>;
+    if (clips.length === 0) return <div>Loading...</div>;
     const clip = clips[currentClip];
 
     return (

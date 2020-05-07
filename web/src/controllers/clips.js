@@ -15,7 +15,6 @@ export async function getClips() {
 
 export async function deleteClip(file_name) {
     try {
-        console.log('DELETE!');
         await axios.delete(`${CLIPS_ENDPOINT}${file_name}`);
     } catch (error) {
         console.log('Erorr deleting clip: ');
