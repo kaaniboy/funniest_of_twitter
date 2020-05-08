@@ -12,7 +12,7 @@ const { beginYouTubeAuth, uploadToYouTube } = require('./utils/youtube_utils');
 
 const PORT = 9000;
 
-const WEB_PUBLIC_DIR = path.join(__dirname, '../../web/public');
+const WEB_PUBLIC_DIR = path.join(__dirname, '../web/public');
 const CLIPS_DIR = path.join(__dirname, 'clips');
 
 let tweets = [];
