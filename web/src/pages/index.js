@@ -8,7 +8,7 @@ import Progress from '../components/Progress';
 import Uploader from '../components/Uploader';
 import '../styles/index.scss';
 
-const STEPS = ['Retrieve Clips', 'Curate Clips', 'Upload', 'Confirmation'];
+const STEPS = ['Retrieve Clips', 'Curate Clips', 'Upload'];
 const RETRIEVE_STEP = 0;
 const CURATE_STEP = 1;
 const UPLOAD_STEP = 2;
