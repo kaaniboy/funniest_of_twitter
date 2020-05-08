@@ -2,11 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser')
 const path = require('path');
 const cors = require('cors');
-const fs = require('fs');
-const fsExtra = require('fs-extra');
+const open = require('open');
 
 const { curateTweets } = require('./utils/twitter_utils');
-const { downloadVideo } = require('./utils/download_utils');
+const { downloadClips, getClips, deleteClip, clearClips } = require('./utils/file_utils');
 const { createFinalVideo } = require('./utils/video_utils');
 const { beginYouTubeAuth, uploadToYouTube } = require('./utils/youtube_utils');
 
@@ -14,8 +13,6 @@ const PORT = 9000;
 
 const WEB_PUBLIC_DIR = path.join(__dirname, '../web/public');
 const CLIPS_DIR = path.join(__dirname, 'clips');
-
-let tweets = [];
 
 module.exports.startServer = function() {
     const server = express();
@@ -31,49 +28,38 @@ module.exports.startServer = function() {
     });
 
     server.get('/clips', (req, res) => {
-        const clips = fs.readdirSync(CLIPS_DIR)
-            .filter(c => c !== '.DS_Store');
-        res.json({ clips });
+        res.json({ clips: getClips() });
     });
 
     server.post('/clips', async (req, res) => {
         const accounts = req.body.accounts;
-        tweets = await curateTweets(accounts);
-        
-        console.log(`Downloading ${tweets.length} videos...`);
-        await Promise.all(tweets.map(async tweet => {
-            await downloadVideo(tweet.video_url, `${tweet.id}.mp4`);
-        }));
+        server.locals.tweets = await curateTweets(accounts);
+        await downloadClips(server.locals.tweets);
 
         res.send({ success: true });
     });
 
     server.delete('/clips/:file_name', (req, res) => {
         const { file_name } = req.params;
-        try {
-            fs.unlinkSync(`${CLIPS_DIR}/${file_name}`);
-            res.json({ success: true });
-        } catch (error) {
-            res.json({ success: false });
-        }
+        const success = deleteClip(file_name);
+        res.json({ success });
     });
 
     server.post('/upload', (req, res) => {
-        createFinalVideo(tweets);
+        console.log(server.locals.tweets);
+        createFinalVideo(server.locals.tweets);
         beginYouTubeAuth();
-        
-        // Clean temporary files
-        fsExtra.emptyDirSync(CLIPS_DIR);
+
+        clearClips();
         res.send({ success: true });
     });
 
     server.get('/youtube_redirect', uploadToYouTube);
-
-    server.listen(PORT, () => console.log(`Launching web UI at http://localhost:${PORT}`));
-    return server;
+    server.listen(PORT);
 }
 
 const isCLI = !module.parent;
 if (isCLI) {
     module.exports.startServer();
+    open(`http://localhost:${PORT}`);
 }
