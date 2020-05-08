@@ -26,7 +26,6 @@ module.exports.createFinalVideo = function(tweets, temp_dir = CLIPS_DIR) {
     const filenames = clips.map(c => `${temp_dir}/${c}`);
     const resized_filenames = filenames.map(f => `${f.split('.')[0]}-resized.mp4`);
     const subtitles = clips.map(c => subtitlesMap[c.split('.')[0]]);
-    console.log(subtitles);
 
     const output_filename = new Date().toISOString().split('T')[0] + '.mp4';
     const output_path = `${OUTPUT_DIR}/${output_filename}`;

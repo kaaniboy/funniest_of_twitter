@@ -41,13 +41,16 @@ export default class ClipCurator extends Component {
 
   render () {
     const { clips, currentClip } = this.state;
-    if (clips.length === 0) return <div>No clips to view.</div>;
+    if (clips.length === 0) return <h2 className="center">No clips to view.</h2>;
+    if (currentClip >= clips.length) return <h2 className="center">All clips have been reviewed</h2>;
     const clip = clips[currentClip];
 
     return (
       <div>
-        <h1>Clip {currentClip + 1} of {clips.length}</h1>
-        <h3>{clip}</h3>
+        <div className="center">
+          <h1>Clip {currentClip + 1} of {clips.length}</h1>
+          <h3>{clip}</h3>
+        </div>
         <ReactPlayer url={CLIP_PREFIX + clip} controls={true} playing={true}/>
         <div className="actions">
           <Button onClick={this.include} variant="contained" size="large" color="primary">Include</Button>

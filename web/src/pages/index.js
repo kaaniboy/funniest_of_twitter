@@ -12,7 +12,6 @@ const STEPS = ['Retrieve Clips', 'Curate Clips', 'Upload', 'Confirmation'];
 const RETRIEVE_STEP = 0;
 const CURATE_STEP = 1;
 const UPLOAD_STEP = 2;
-const CONFIRMATION_STEP = 3;
 
 export default class Index extends Component {
   constructor(props) {
@@ -32,7 +31,7 @@ export default class Index extends Component {
 
   render () {
     const { currentStep } = this.state;
-    const nextEnabled = currentStep < STEPS.length - 1;
+    const nextEnabled = currentStep < UPLOAD_STEP;
 
     return (
       <div className="container">
@@ -41,7 +40,6 @@ export default class Index extends Component {
         {currentStep === RETRIEVE_STEP && <ClipRetriever />}
         {currentStep === CURATE_STEP && <ClipCurator />}
         {currentStep === UPLOAD_STEP && <Uploader />}
-        {currentStep === CONFIRMATION_STEP && <div>Done!</div>}
         
         <div className="actions">
           {nextEnabled &&
