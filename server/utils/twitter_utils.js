@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Twitter = require('twitter');
 const emojiStrip = require('emoji-strip');
 
@@ -91,6 +92,7 @@ function extractTweetInfo(tweet) {
 function cleanText(text) {
     // Replace & with 'and'
     text = text.replace(/&/g, 'and');
+    text = text.replace(/"/g, '');
     // Remove emojis
     return emojiStrip(text).trim();
 }

@@ -1,5 +1,4 @@
 const YouTube = require('youtube-api');
-const express = require('express');
 const open = require('open');
 const fs = require("fs");
 const prettyBytes = require("pretty-bytes");
@@ -8,15 +7,11 @@ require('dotenv').config();
 
 const OUTPUT_DIR = 'output';
 
-const PORT = 8000;
-const YOUTUBE_REDIRECT_ENDPOINT = '/youtube_redirect';
 const UPDATE_INTERVAL_MS = 1000;
 
 const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks';
 const VIDEO_DESCRIPTION = 
     'Watch the day\'s funniest memes, Vines, and Tik-Toks! Disclaimer: Funniest Daily Videos does not own any of these videos.';
-
-const server = express();
 
 const oauth = YouTube.authenticate({
     type: "oauth",
@@ -25,17 +20,15 @@ const oauth = YouTube.authenticate({
     redirect_url: process.env.YOUTUBE_AUTH_URL
 });
 
-module.exports.beginYouTubeUpload = function() {
-    server.listen(PORT, () => console.log(`Listening for YouTube redirect at http://localhost:${PORT}`));
-    server.get(YOUTUBE_REDIRECT_ENDPOINT, upload);
-
+module.exports.beginYouTubeAuth = function() {
+    console.log('Beginning YouTube authentication...');
     open(oauth.generateAuthUrl({
         access_type: "offline",
         scope: ["https://www.googleapis.com/auth/youtube.upload"]
     }));
 }
 
-function upload(req, res) {
+module.exports.uploadToYouTube = function (req, res) {
     console.log('Beginning upload to YouTube...');
     const code = req.query.code;
 

@@ -1,56 +1,52 @@
 import React from 'react';
 import { Component } from 'react';
-import ReactPlayer from 'react-player';
 import Button from '@material-ui/core/Button';
 
-import { getClips, deleteClip } from '../controllers/clips';
+import ClipRetriever from '../components/ClipRetriever';
+import ClipCurator from '../components/ClipCurator';
+import Progress from '../components/Progress';
+import Uploader from '../components/Uploader';
 import '../styles/index.scss';
 
-const CLIP_PREFIX = 'http://localhost:9000/static/';
+const STEPS = ['Retrieve Clips', 'Curate Clips', 'Upload', 'Confirmation'];
+const RETRIEVE_STEP = 0;
+const CURATE_STEP = 1;
+const UPLOAD_STEP = 2;
+const CONFIRMATION_STEP = 3;
 
 export default class Index extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentClip: 0,
-      clips: []
+      currentStep: 0,
     }
 
-    this.include = this.include.bind(this);
-    this.exclude = this.exclude.bind(this);
+    this.nextStep = this.nextStep.bind(this);
   }
 
-  async componentDidMount() {
-    const clips = await getClips();
-    this.setState({ clips });
-  }
-
-  include() {
-    this.nextClip();
-  }
-
-  exclude() {
-    this.nextClip();
-  }
-
-  nextClip() {
+  nextStep() {
     this.setState(prev => ({
-      currentClip: prev.currentClip + 1
+      currentStep: prev.currentStep + 1
     }));
   }
 
   render () {
-    const { clips, currentClip } = this.state;
-    if (clips.length === 0) return <div>Loading...</div>;
-    const clip = clips[currentClip];
+    const { currentStep } = this.state;
+    const nextEnabled = currentStep < STEPS.length - 1;
 
     return (
       <div className="container">
-        <h1>Clip {currentClip + 1} of {clips.length}</h1>
-        <ReactPlayer url={CLIP_PREFIX + clip}/>
+        <Progress steps={STEPS} currentStep={currentStep}/>
+
+        {currentStep === RETRIEVE_STEP && <ClipRetriever />}
+        {currentStep === CURATE_STEP && <ClipCurator />}
+        {currentStep === UPLOAD_STEP && <Uploader />}
+        {currentStep === CONFIRMATION_STEP && <div>Done!</div>}
+        
         <div className="actions">
-          <Button onClick={this.include} variant="contained" size="large" color="primary">Include</Button>
-          <Button onClick={this.exclude} variant="contained" size="large" color="secondary">Exclude</Button>
+          {nextEnabled &&
+            <Button onClick={this.nextStep} variant="contained" size="large" color="default">Next Step</Button>
+          }
         </div>
       </div>
     );

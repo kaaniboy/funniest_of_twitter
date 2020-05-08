@@ -1,5 +1,7 @@
 const { execSync } = require('child_process');
+const fs = require('fs');
 
+const CLIPS_DIR = 'clips';
 const OUTPUT_DIR = 'output';
 const FONT_PATH = 'static/AvenirNext-Bold.ttf';
 
@@ -10,15 +12,21 @@ SUBTITLE_FONT_SIZE = 24;
 const RES_WIDTH = 1280;
 const RES_HEIGHT = 720;
 
-module.exports.createFinalVideoFromTweets = function(tweets, temp_dir) {
-    if (!tweets || tweets.length === 0) return;
+module.exports.createFinalVideo = function(tweets, temp_dir = CLIPS_DIR) {
+    let clips = fs.readdirSync(CLIPS_DIR)
+        .filter(c => c !== '.DS_Store');
 
-    // TODO: Support videos without audio.
-    tweets = tweets.filter(t => hasAudio(`${temp_dir}/${t.id}.mp4`));
+    const subtitlesMap = {};
+    tweets.forEach(t => {
+        subtitlesMap[t.id] = t.text
+    });
 
-    const filenames = tweets.map(t => `${temp_dir}/${t.id}.mp4`);
+    clips = clips.filter(c => hasAudio(`${temp_dir}/${c}`));
+
+    const filenames = clips.map(c => `${temp_dir}/${c}`);
     const resized_filenames = filenames.map(f => `${f.split('.')[0]}-resized.mp4`);
-    const subtitles = tweets.map(t => t.text);
+    const subtitles = clips.map(c => subtitlesMap[c.split('.')[0]]);
+    console.log(subtitles);
 
     const output_filename = new Date().toISOString().split('T')[0] + '.mp4';
     const output_path = `${OUTPUT_DIR}/${output_filename}`;

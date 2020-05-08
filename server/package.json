@@ -9,6 +9,7 @@
   "author": "Kaan Aksoy",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "connect": "^3.7.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

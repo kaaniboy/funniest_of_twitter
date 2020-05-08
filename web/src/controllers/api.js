@@ -1,6 +1,25 @@
 import axios from 'axios';
 
 const CLIPS_ENDPOINT = 'http://localhost:9000/clips/';
+const UPLOAD_ENDPOINT = 'http://localhost:9000/upload';
+
+export async function uploadToYouTube() {
+    try {
+        await axios.post(UPLOAD_ENDPOINT);
+    } catch (error) {
+        console.log('Error finalizing and uploading: ');
+        console.log(error);
+    }
+}
+
+export async function downloadClips(accounts) {
+    try {
+        await axios.post(CLIPS_ENDPOINT, { accounts });
+    } catch (error) {
+        console.log('Error downloading clips: ');
+        console.log(error);
+    }
+}
 
 export async function getClips() {
     try {
