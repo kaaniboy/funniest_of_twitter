@@ -46,7 +46,6 @@ module.exports.startServer = function() {
     });
 
     server.post('/upload', (req, res) => {
-        console.log(server.locals.tweets);
         createFinalVideo(server.locals.tweets);
         beginYouTubeAuth();
 

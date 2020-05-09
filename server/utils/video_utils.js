@@ -71,9 +71,13 @@ function createConcatCommand(filenames, output_filename) {
 }
 
 function createTransformCommand(subtitle, filename, resized_filename) {
-    let command = `ffmpeg -i ${filename} -vf "scale=w=${RES_WIDTH}:h=${RES_HEIGHT}:force_original_aspect_ratio=1,pad=${RES_WIDTH}:${RES_HEIGHT}:(ow-iw)/2:(oh-ih)/2,`;
-    command += `drawtext=fontfile=${FONT_PATH}: text=\'${subtitle}\':fontcolor=white: fontsize=${SUBTITLE_FONT_SIZE}: box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y= h-text_h-30"`;
-    
+    const silence = hasAudio(filename) ? '' : `-f lavfi -i anullsrc=channel_layout=stereo:sample_rate=44100`;
+
+    let command = `ffmpeg -i ${filename} ${silence}`;
+    command += ` -vf "scale=w=${RES_WIDTH}:h=${RES_HEIGHT}:force_original_aspect_ratio=1,pad=${RES_WIDTH}:${RES_HEIGHT}:(ow-iw)/2:(oh-ih)/2,`;
+    command += ` drawtext=fontfile=${FONT_PATH}: text=\'${subtitle}\':fontcolor=white: fontsize=${SUBTITLE_FONT_SIZE}:`
+    command += ` box=1: boxcolor=black@0.5: boxborderw=5: x=(w-text_w)/2: y= h-text_h-30"`;
+    command += ` -c:v libx264 -c:a aac -shortest`;
     command += ` ${resized_filename}`;
     command += ' -loglevel error -hide_banner';
     return command;
