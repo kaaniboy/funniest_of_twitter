@@ -106,5 +106,5 @@ function cleanText(text) {
 
 function calculateRelevance(favorite_count, created_at) {
     const daysElapsed = Math.max(1, (Date.now() - created_at.getTime()) / MILLIS_IN_DAY);
-    return favorite_count / daysElapsed;
+    return favorite_count / (2 * daysElapsed);
 }

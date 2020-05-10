@@ -12,9 +12,12 @@ module.exports.downloadClips = async function(tweets) {
     console.log(`Downloading ${tweets.length} clips...`);
     module.exports.clearClips();
 
-    await Promise.all(tweets.map(async tweet => {
-        await downloadClip(tweet.video_url, `${tweet.id}.mp4`);
+    await Promise.all(tweets.map(async (tweet, i) => {
+        // Prefix file name with relevance index to ensure ordering
+        const file_name = `${i}_${tweet.id}.mp4`;
+        await downloadClip(tweet.video_url, file_name);
     }));
+    console.log('Finished downloading clips.');
 }
 
 async function downloadClip(video_url, filename) {
