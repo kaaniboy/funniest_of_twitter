@@ -6,12 +6,18 @@ const prettyBytes = require("pretty-bytes");
 require('dotenv').config();
 
 const OUTPUT_DIR = 'output';
-
 const UPDATE_INTERVAL_MS = 1000;
 
 const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks';
 const VIDEO_DESCRIPTION = 
     'Watch the day\'s funniest memes, Vines, and Tik-Toks! Disclaimer: Funniest Daily Videos does not own any of these videos.';
+const VIDEO_TAGS = [
+    'funny', 'tiktok', 'meme', 'funniest', 'twitter', 
+    'vine', 'reddit', 'crazy', 'hilarious', 'cat', 'dog', 
+    'kitten', 'puppy', 'prank', 'cute', 'moments', 'insane',
+    'bloopers', 'cam', 'drama', 'jokes', 'edit', 'compilation',
+    'fortnite', 'troll'
+];
 
 const oauth = YouTube.authenticate({
     type: "oauth",
@@ -71,7 +77,8 @@ function getVideoSnippet(date) {
 
     return {
         title: `${VIDEO_TITLE_PREFIX} (${date_text})`,
-        description: VIDEO_DESCRIPTION
+        description: VIDEO_DESCRIPTION,
+        tags: VIDEO_TAGS
     };
 }
 
