@@ -1,26 +1,18 @@
+require('dotenv').config();
 const YouTube = require('youtube-api');
 const open = require('open');
 const fs = require("fs");
 const prettyBytes = require("pretty-bytes");
 
-require('dotenv').config();
-
 const OUTPUT_DIR = 'output';
 const UPDATE_INTERVAL_MS = 1000;
 
-const VIDEO_TITLE_PREFIX = 'Funniest Memes, Vines, and Tik-Toks';
-const VIDEO_DESCRIPTION = 
-    'Watch the day\'s funniest memes, Vines, and Tik-Toks! Disclaimer: Funniest Daily Videos does not own any of these videos.';
-const VIDEO_TAGS = [
-    'funny', 'tiktok', 'meme', 'funniest', 'twitter', 
-    'vine', 'reddit', 'crazy', 'hilarious', 'cat', 'dog', 
-    'kitten', 'puppy', 'prank', 'cute', 'moments', 'insane',
-    'bloopers', 'cam', 'drama', 'jokes', 'edit', 'compilation',
-    'fortnite', 'troll'
-];
+const VIDEO_TITLE_PREFIX = process.env.VIDEO_TITLE_PREFIX;
+const VIDEO_DESCRIPTION = process.env.VIDEO_DESCRIPTION;
+const VIDEO_TAGS = process.env.VIDEO_TAGS.split(',');
 
 const oauth = YouTube.authenticate({
-    type: "oauth",
+    type: 'oauth',
     client_id: process.env.YOUTUBE_CLIENT_ID,
     client_secret: process.env.YOUTUBE_CLIENT_SECRET,
     redirect_url: process.env.YOUTUBE_AUTH_URL

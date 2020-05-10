@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { execSync } = require('child_process');
 const fs = require('fs');
 
@@ -5,12 +6,12 @@ const CLIPS_DIR = 'clips';
 const OUTPUT_DIR = 'output';
 const FONT_PATH = 'static/AvenirNext-Bold.ttf';
 
-TITLE_TOP = 'FUNNIEST VIDEOS';
-TITLE_FONT_SIZE = 130;
-SUBTITLE_FONT_SIZE = 24;
+const THUMBNAIL_TITLE_TOP = process.env.THUMBNAIL_TITLE_TOP;
+const THUMBNAIL_TITLE_FONT_SIZE = +process.env.THUMBNAIL_TITLE_FONT_SIZE;
+const SUBTITLE_FONT_SIZE = +process.env.SUBTITLE_FONT_SIZE;
 
-const RES_WIDTH = 1280;
-const RES_HEIGHT = 720;
+const RES_WIDTH = +process.env.RES_WIDTH;
+const RES_HEIGHT = +process.env.RES_HEIGHT;
 
 module.exports.createFinalVideo = function(tweets, temp_dir = CLIPS_DIR) {
     let clips = fs.readdirSync(CLIPS_DIR)
@@ -33,7 +34,7 @@ module.exports.createFinalVideo = function(tweets, temp_dir = CLIPS_DIR) {
     try {
         transformVideos(subtitles, filenames, resized_filenames);
         concatVideos(resized_filenames, output_path);
-        createThumbnail(output_path, TITLE_TOP, createDateText(new Date()));
+        createThumbnail(output_path, THUMBNAIL_TITLE_TOP, createDateText(new Date()));
     } catch (e) {
         console.log(e);
     }
@@ -87,8 +88,8 @@ function createThumbnailCommand(filename, title_top, title_bottom) {
     thumbnail_filename = `${filename.split('.')[0]}-thumbnail.png`;
 
     let command = `ffmpeg -i ${filename} -ss 00:00:01.000 -vframes 1 `
-    command += ` -vf "drawtext=fontfile=${FONT_PATH}: text=\'${title_top}\':fontcolor=white: fontsize=${TITLE_FONT_SIZE}: x=(w-text_w)/2: y=(h-2*text_h)/2`;
-    command += `,drawtext=fontfile=${FONT_PATH}: text=\'${title_bottom}\':fontcolor=white: fontsize=${TITLE_FONT_SIZE}: x=(w-text_w)/2: y=40+text_h+(h-2*text_h)/2"`;
+    command += ` -vf "drawtext=fontfile=${FONT_PATH}: text=\'${title_top}\':fontcolor=white: fontsize=${THUMBNAIL_TITLE_FONT_SIZE}: x=(w-text_w)/2: y=(h-2*text_h)/2`;
+    command += `,drawtext=fontfile=${FONT_PATH}: text=\'${title_bottom}\':fontcolor=white: fontsize=${THUMBNAIL_TITLE_FONT_SIZE}: x=(w-text_w)/2: y=40+text_h+(h-2*text_h)/2"`;
     command += ` ${thumbnail_filename}`;
     command += ' -loglevel error -hide_banner';
     return command;

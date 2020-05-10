@@ -2,15 +2,14 @@ require('dotenv').config();
 const Twitter = require('twitter');
 const emojiStrip = require('emoji-strip');
 
-const TWEETS_PER_ACCOUNT = 100;
 const MILLIS_IN_SEC = 1000;
 const MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
 const SEC_IN_MIN = 60;
-
-const MINIMUM_TOTAL_DURATION_SEC = 1200;
-const MAX_TWEET_DURATION_SEC = 30;
-
 const TWEET_TEXT_SPLIT = 'https://t.co/';
+
+const TWEETS_PER_ACCOUNT = +process.env.TWEETS_PER_ACCOUNT;
+const MINIMUM_TOTAL_DURATION_SEC = +process.env.MINIMUM_TOTAL_DURATION_SEC;
+const MAX_TWEET_DURATION_SEC = +process.env.MAX_TWEET_DURATION_SEC;
 
 const client = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -25,12 +24,12 @@ module.exports.curateTweets = async function(screen_names, count = TWEETS_PER_AC
     videoTweets = videoTweets.filter(tweet => tweet.duration_sec < MAX_TWEET_DURATION_SEC);
     
     let curatedTweets = [];
-    let total_duration_sec = 0;
+    let totalDurationSec = 0;
     
     for (let tweet of videoTweets) {
-        if (total_duration_sec > MINIMUM_TOTAL_DURATION_SEC) break;
+        if (totalDurationSec > MINIMUM_TOTAL_DURATION_SEC) break;
         curatedTweets.push(tweet);
-        total_duration_sec += tweet.duration_sec;
+        totalDurationSec += tweet.duration_sec;
     }
     return curatedTweets;
 }
