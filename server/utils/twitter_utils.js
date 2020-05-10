@@ -4,6 +4,7 @@ const emojiStrip = require('emoji-strip');
 
 const TWEETS_PER_ACCOUNT = 100;
 const MILLIS_IN_SEC = 1000;
+const MILLIS_IN_DAY = 24 * 60 * 60 * 1000;
 const SEC_IN_MIN = 60;
 
 const MINIMUM_TOTAL_DURATION_SEC = 1200;
@@ -51,7 +52,7 @@ async function retrieveVideoTweets(screen_names, count) {
             .filter(hasVideo)
             .map(extractTweetInfo);
         
-        videoTweets.sort((a, b) => b.favorite_count - a.favorite_count);
+        videoTweets.sort((a, b) => b.relevance - a.relevance);
         return videoTweets;
     } catch (error) {
         console.log(error);
@@ -75,13 +76,20 @@ function extractTweetInfo(tweet) {
     const video_url = video_info.variants[
         video_bitrates.indexOf(Math.max(...video_bitrates))
     ].url;
-    
+
+    const relevance = calculateRelevance(
+        tweet.favorite_count,
+        new Date(tweet.created_at)
+    );
+
     return {
         id: tweet.id_str,
-        bitrate: Math.max(...video_bitrates),
         name: tweet.user.name,
         text: cleanText(text),
+        created_at: tweet.created_at,
         favorite_count: tweet.favorite_count,
+        relevance: relevance,
+        bitrate: Math.max(...video_bitrates),
         aspect_ratio: video_info.aspect_ratio,
         video_size,
         video_url,
@@ -95,4 +103,9 @@ function cleanText(text) {
     text = text.replace(/"/g, '');
     // Remove emojis
     return emojiStrip(text).trim();
+}
+
+function calculateRelevance(favorite_count, created_at) {
+    const daysElapsed = Math.max(1, (Date.now() - created_at.getTime()) / MILLIS_IN_DAY);
+    return favorite_count / daysElapsed;
 }
